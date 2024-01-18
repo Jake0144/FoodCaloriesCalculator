@@ -24,12 +24,12 @@ app.get('/create-new-food', (req, res) => {
     res.render('addFood');
   });
 app.get('/view-all-foods', (req, res) => {
-    res.render('viewFoods');
-  });
-app.get('/view-food', (req, res) => {
     Food.find()
-      .then((foods) => res.render('view-food', { foods }))
+      .then((foods) => res.render('viewFoods', { foods }))
       .catch((err) => res.send(err));
+  });
+app.get('/view-all-food', (req, res) => {
+    res.redirect('/view-all-foods');
   });
 //Post requests
 app.post('/api/add-food', (req,res)=>{
@@ -40,10 +40,7 @@ app.post('/api/add-food', (req,res)=>{
       res.redirect('/');
     })
   });
-  
 
-
- //Connect to MongoDB
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
