@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 const port = 3000;
-const dbURI = process.env.CYCLIC_DB;
+const uri = process.env.CYCLIC_DB;
 
 //set ejs engine
 app.set('view engine', 'ejs')
@@ -45,10 +45,10 @@ app.post('/api/add-food', (req,res)=>{
 
 
 // Connect to MongoDB
-mongoose.connect(dbURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(()=> app.listen(port, () => {
-      console.log(`Server is running on port ${port}`)
-    }))
+client.connect(err => {
+    if(err){ console.error(err); return false;}
+    // connection to mongo is successful, listen for requests
+    app.listen(PORT, () => {
+        console.log("listening for requests");
+    })
+});
