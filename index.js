@@ -3,17 +3,26 @@ const fs = require('fs');
 const ejs = require('ejs');
 const path = require('path');
 const Food = require('./models/food');
-const { MongoClient } = require('mongodb');
-
+const mongoose = require('mongoose');
 
 const app = express();
 const port = 3000;
-const uri = process.env.CYCLIC_DB;
-const client = new MongoClient(uri);
 
 //set ejs engine
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
+
+
+const connectDB = async () => {
+    try {
+      const conn = await mongoose.connect(process.env.MONGO_URI);
+      console.log(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
+    }
+  }
+
 
 //middleware
 app.use(express.urlencoded({ extended: true }));
@@ -47,9 +56,8 @@ app.post('/api/add-food', (req,res)=>{
 
 
 // Connect to MongoDB
-client.connect(err => {
-    if(err){ console.error(err); return false;}
-    app.listen(port, () => {
+  connectDB().then(() => {
+    app.listen(PORT, () => {
         console.log("listening for requests");
     })
-});
+})
