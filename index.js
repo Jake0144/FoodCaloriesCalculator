@@ -1,12 +1,15 @@
 const express = require('express');
 const fs = require('fs');
 const ejs = require('ejs');
+const path = require('path');
+
 
 const app = express();
 const port = 3000;
 
 //set ejs engine
 app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'))
 
 //middleware
 app.use(express.urlencoded({ extended: true }));
