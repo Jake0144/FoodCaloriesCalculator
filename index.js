@@ -23,11 +23,16 @@ app.get('/', (req, res) => {
 app.get('/create-new-food', (req, res) => {
     res.render('addFood');
   });
-app.get('/view-all-foods', (req, res) => {
-    Food.find()
-      .then((foods) => res.render('viewFoods', { foods }))
-      .catch((err) => res.send(err));
-  });
+  app.get('/view-all-foods', async (req, res) => {
+    try {
+        const foods = await Food.find();
+        console.log(foods); // Log the fetched data
+        res.render('viewFoods', { foods });
+    } catch (err) {
+        console.error(err);
+        res.send(err);
+    }
+});
 app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
