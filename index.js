@@ -53,11 +53,13 @@ app.post('/api/add-food', (req,res)=>{
     })
   });
   
-
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
 
 // Connect to MongoDB
-  connectDB().then(() => {
-    app.listen(port, () => {
-        console.log("listening for requests");
-    })
-})
+ // connectDB().then(() => {
+ //   app.listen(port, () => {
+  //      console.log("listening for requests");
+ //   })
+//})
