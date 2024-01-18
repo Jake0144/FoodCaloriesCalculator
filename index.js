@@ -14,7 +14,7 @@ app.use(express.json());
 
 
 app.get('/', (req, res) => {
-    app.render('index')
+    res.render('index');
   });
 
 
