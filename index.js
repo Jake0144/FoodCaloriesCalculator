@@ -12,18 +12,6 @@ const port = 3000;
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
-
-const connectDB = async () => {
-    try {
-      const conn = await mongoose.connect(process.env.MONGO_URI);
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-      console.log(error);
-      process.exit(1);
-    }
-  }
-
-
 //middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -53,13 +41,14 @@ app.post('/api/add-food', (req,res)=>{
     })
   });
   
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
 
+
+ //Connect to MongoDB
 // Connect to MongoDB
- // connectDB().then(() => {
- //   app.listen(port, () => {
-  //      console.log("listening for requests");
- //   })
-//})
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(()=> app.listen(port, () => {
+      console.log(`Server is running on port ${port}`)
+    }))
