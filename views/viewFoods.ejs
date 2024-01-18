@@ -9,7 +9,7 @@
 
     <h1>All Your Foods</h1>
 
-    <% if (foods.length > 0) { %>
+    <% if (foods && foods.length > 0) { %>
         <ul>
             <% foods.forEach((food) => { %>
                 <li>
@@ -18,8 +18,6 @@
                         <strong>Calories:</strong> <%= food.calories %>, 
                         <strong>Mass:</strong> <%= food.mass %>
                     </div>
-                    <div class="view-icon" onclick="viewFood('<%= food._id %>')">View</div>
-                    <div class="remove-icon" onclick="removeFood('<%= food._id %>')">&#x2716;</div>
                 </li>
             <% }); %>
         </ul>
