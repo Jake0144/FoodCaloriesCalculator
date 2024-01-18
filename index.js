@@ -10,6 +10,7 @@ const { MongoClient } = require('mongodb');
 const app = express();
 const port = 3000;
 const uri = process.env.CYCLIC_DB;
+const client = new MongoClient(uri);
 
 //set ejs engine
 app.set('view engine', 'ejs')
