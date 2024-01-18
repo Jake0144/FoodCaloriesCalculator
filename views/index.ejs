@@ -3,16 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Express App</title>
+    <title>Food Management App</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f8f8f8;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            color: #000000; 
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); 
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -20,28 +35,42 @@
             margin-bottom: 20px;
         }
 
-        p {
-            color: #777;
-            margin-bottom: 20px;
-        }
-
         a {
             color: #3498db;
             text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         a:hover {
-            text-decoration: underline;
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .appnamer{
+            background-color: cadetblue;
+            border-radius: 8px;
+            border: 20px;
+            width: 600px;
+            height: 60px;
+            margin-left: -30%;
+            align-items: center;
         }
     </style>
 </head>
 <body>
 
-    <h1>Welcome to My Express App!</h1>
-
-    <p>This is a simple home page written using EJS.</p>
-
-    <a>View All Foods</a>
+    <div class="container">
+    <div class="appnamer">
+        <h1 class="appname">Food Management App</h1>
+    </div>
+        <a href="/create-new-food">Add Food</a>
+        <a href="/view-all-food">View All Foods</a>
+    </div>
 
 </body>
 </html>
