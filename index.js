@@ -50,8 +50,7 @@ app.post('/api/add-food', (req,res)=>{
 // Connect to MongoDB
 client.connect(err => {
     if(err){ console.error(err); return false;}
-    // connection to mongo is successful, listen for requests
-    app.listen(PORT, () => {
+    app.listen(port, () => {
         console.log("listening for requests");
     })
 });
