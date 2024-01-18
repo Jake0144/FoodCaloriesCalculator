@@ -57,7 +57,7 @@ app.post('/api/add-food', (req,res)=>{
 
 // Connect to MongoDB
   connectDB().then(() => {
-    app.listen(PORT, () => {
+    app.listen(port, () => {
         console.log("listening for requests");
     })
 })
