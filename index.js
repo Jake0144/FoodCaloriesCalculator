@@ -62,21 +62,33 @@ app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
 //Post request to add new food
+// Post request to add new food
 app.post('/api/add-food', isLoggedIn, async (req, res) => {
   try {
     const food = new Food({
       title: req.body.title,
       calories: req.body.calories,
       mass: req.body.mass,
-      user: req.user._id, 
+      user: req.user._id,
     });
+
     const result = await food.save();
     console.log(result);
-    res.redirect('/');
+
+    res.json({ success: true, message: 'Food added successfully' });
   } catch (err) {
     console.error(err);
-    res.send(err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
+});
+
+//Remove Food Request Handler
+app.delete('/api/remove-food/:foodId', (req,res)=>{
+  Food.findByIdAndDelete(req.params.foodId)
+  .then((result)=>{
+    console.log(result);
+    
+    })
 });
 
 // Routes for authentication

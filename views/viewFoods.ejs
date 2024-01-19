@@ -40,6 +40,16 @@
             text-decoration: none;
             color: #333;
         }
+
+        .remove-icon {
+        cursor: pointer;
+        font-size: 20px;
+        margin-left: 10px;
+    }
+
+    .remove-icon:hover {
+        color: #e74c3c;
+    }
     </style>
 </head>
 <body>
@@ -55,6 +65,7 @@
                         <strong>Calories:</strong> <%= food.calories %>, 
                         <strong>Mass:</strong> <%= food.mass %>
                     </div>
+                    <div class="remove-icon" onclick="removeFood('<%= food._id %>')">&#x2716;</div>
                 </li>
             <% }); %>
         </ul>
@@ -63,5 +74,15 @@
     <% } %>
 
     <a href="/">Go to home page</a>
+<script>
+    function removeFood(foodId) {
+            fetch(`/api/remove-food/${foodId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }
+</script>
 </body>
 </html>
