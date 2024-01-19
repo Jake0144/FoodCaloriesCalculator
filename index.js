@@ -48,7 +48,7 @@ app.get('/',isLoggedIn, (req, res) => {
 app.get('/create-new-food',isLoggedIn, (req, res) => {
     res.render('addFood');
   });
-  app.get('/view-all-foods', isLoggedIn, async (req, res) => {
+app.get('/view-all-foods', isLoggedIn, async (req, res) => {
     try {
       const foods = await Food.find({ user: req.user._id });
       console.log(foods);
@@ -61,7 +61,7 @@ app.get('/create-new-food',isLoggedIn, (req, res) => {
 app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
-//Post requests
+//Post request to add new food
 app.post('/api/add-food', isLoggedIn, async (req, res) => {
   try {
     const food = new Food({
