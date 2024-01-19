@@ -1,29 +1,44 @@
-<!-- views/viewFoods.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Foods</title>
-    <link rel="stylesheet" href="/styles.css"> <!-- Link your external stylesheet here -->
-    <!-- Include Font Awesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
-    <style>
-        /* Add your styles here */
+    <title>Food Management App</title>
 
-        /* Styles for delete button */
-        .delete-btn {
-            background-color: #e74c3c;
-            color: #fff;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
         }
 
-        .delete-btn:hover {
-            background-color: #c0392b;
+        h1 {
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            background-color: #e0e0e0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #333;
         }
     </style>
 </head>
@@ -39,10 +54,6 @@
                         <strong>Title:</strong> <%= food.title %>, 
                         <strong>Calories:</strong> <%= food.calories %>, 
                         <strong>Mass:</strong> <%= food.mass %>
-                        <!-- Add delete button with icon -->
-                        <button class="delete-btn" onclick="deleteFood('<%= food._id %>')">
-                            <i class="fas fa-trash-alt"></i> Delete
-                        </button>
                     </div>
                 </li>
             <% }); %>
@@ -52,22 +63,5 @@
     <% } %>
 
     <a href="/">Go to home page</a>
-
-    <script>
-        // JavaScript function to handle food deletion
-        function deleteFood(foodId) {
-            fetch(`/api/delete-food/${foodId}`, { method: 'DELETE' })
-                .then(response => response.json())
-                .then(data => {
-                    // Reload the page after successful deletion
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        console.error('Failed to delete food');
-                    }
-                })
-                .catch(error => console.error('Error deleting food:', error));
-        }
-    </script>
 </body>
 </html>
