@@ -132,7 +132,23 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// Delete food API
+app.delete('/api/delete-food/:foodId', async (req, res) => {
+  const { foodId } = req.params;
 
+  try {
+    const deletedFood = await Food.findByIdAndDelete(foodId);
+
+    if (deletedFood) {
+      res.json({ success: true, message: 'Food deleted successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'Food not found' });
+    }
+  } catch (err) {
+    console.error('Error deleting food:', err);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
 
 
 // Connect to MongoDB
