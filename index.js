@@ -21,6 +21,10 @@ app.use(session({ secret: process.env.MY_SECRET, resave: true, saveUninitialized
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Passport configuration
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 //middleware
 app.use(express.urlencoded({ extended: true }));
