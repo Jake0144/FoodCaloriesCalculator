@@ -86,29 +86,37 @@ app.get('/register', (req, res) => {
   res.render('register'); 
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', (req, res) => {
   const { username, password } = req.body;
 
-  // Validate input 
+  // Validate input
   if (!username || !password) {
     return res.render('register', { error: 'Username and password are required.' });
   }
 
-  try {
-    // Create a new user
-    const newUser = new User({ username, password });
+  // Create a new user
+  const newUser = new User({ username });
+
+  // Use the setPassword method provided by passport-local-mongoose to set the hashed password
+  newUser.setPassword(password, (err) => {
+    if (err) {
+      console.error(err);
+      return res.render('register', { error: 'Registration failed. Please try again.' });
+    }
 
     // Save the user to the database
-    await newUser.save();
+    newUser.save((saveErr) => {
+      if (saveErr) {
+        console.error(saveErr);
+        return res.render('register', { error: 'Registration failed. Please try again.' });
+      }
 
-    // Automatically log in the user after registration
-    passport.authenticate('local')(req, res, () => {
-      res.redirect('/');
+      // Automatically log in the user after registration
+      passport.authenticate('local')(req, res, () => {
+        res.redirect('/');
+      });
     });
-  } catch (err) {
-    console.error(err);
-    res.render('register', { error: 'Registration failed. Please try again.' });
-  }
+  });
 });
 
 // Logout route
