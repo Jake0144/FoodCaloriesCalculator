@@ -115,9 +115,14 @@ User.register(newUser, password, (err, user) => {
 
 // Logout route
 app.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/login');
+  req.logout((err) => {
+    if (err) {
+      console.error(err);
+    }
+    res.redirect('/login');
+  });
 });
+
 
 
 
