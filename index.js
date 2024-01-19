@@ -56,14 +56,18 @@ app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
 //Post requests
-app.post('/api/add-food', (req,res)=>{
-    const food = new Food(req.body);
-    food.save()
-    .then((result)=>{
+app.post('/api/add-food', async (req, res) => {
+  try {
+      const food = new Food(req.body);
+      const result = await food.save();
       console.log(result);
       res.redirect('/');
-    })
-  });
+  } catch (err) {
+      console.error(err);
+      res.send(err);
+  }
+});
+
 // Routes for authentication
 app.get('/login', (req, res) => {
   res.render('login'); 
@@ -78,7 +82,7 @@ app.get('/register', (req, res) => {
   res.render('register'); 
 });
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
   // Validate input 
@@ -86,21 +90,21 @@ app.post('/register', (req, res) => {
     return res.render('register', { error: 'Username and password are required.' });
   }
 
-  // Create a new user
-  const newUser = new User({ username, password });
+  try {
+    // Create a new user
+    const newUser = new User({ username, password });
 
-  // Save the user to the database
-  newUser.save((err) => {
-    if (err) {
-      console.error(err);
-      return res.render('register', { error: 'Registration failed. Please try again.' });
-    }
+    // Save the user to the database
+    await newUser.save();
 
     // Automatically log in the user after registration
     passport.authenticate('local')(req, res, () => {
       res.redirect('/');
     });
-  });
+  } catch (err) {
+    console.error(err);
+    res.render('register', { error: 'Registration failed. Please try again.' });
+  }
 });
 
 // Logout route
@@ -112,10 +116,7 @@ app.get('/logout', (req, res) => {
 
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+mongoose.connect(process.env.MONGO_URI)
   .then(()=> app.listen(port, () => {
       console.log(`Server is running on port ${port}`)
     }))
