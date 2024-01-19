@@ -3,6 +3,7 @@ const fs = require('fs');
 const ejs = require('ejs');
 const path = require('path');
 const Food = require('./models/food');
+const User = require('./models/user');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
