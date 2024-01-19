@@ -46,6 +46,56 @@ app.post('/api/add-food', (req,res)=>{
     })
   });
 
+<<<<<<< Updated upstream
+=======
+
+// Routes for authentication
+app.get('/login', (req, res) => {
+  res.render('login'); 
+});
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login'
+}));
+
+app.get('/register', (req, res) => {
+  res.render('register'); 
+});
+
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate input 
+  if (!username || !password) {
+    return res.render('register', { error: 'Username and password are required.' });
+  }
+
+  // Create a new user
+  const newUser = new User({ username, password });
+
+  // Save the user to the database
+  newUser.save((err) => {
+    if (err) {
+      console.error(err);
+      return res.render('register', { error: 'Registration failed. Please try again.' });
+    }
+
+    // Automatically log in the user after registration
+    passport.authenticate('local')(req, res, () => {
+      res.redirect('/');
+    });
+  });
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/login');
+});
+
+
+>>>>>>> Stashed changes
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
