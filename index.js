@@ -15,21 +15,36 @@ const port = 3000;
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
+// Use session to track user login status
+app.use(session({ secret: process.env.MY_SECRET, resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 //middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+//login protection
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login'); // Redirect to login page if not authenticated
+}
+
+
 //Get requests
-app.get('/', (req, res) => {
+app.get('/',isLoggedIn, (req, res) => {
     res.render('index');
   });
-app.get('/create-new-food', (req, res) => {
+app.get('/create-new-food',isLoggedIn, (req, res) => {
     res.render('addFood');
   });
-  app.get('/view-all-foods', async (req, res) => {
+  app.get('/view-all-foods',isLoggedIn, async (req, res) => {
     try {
         const foods = await Food.find();
-        console.log(foods); // Log the fetched data
+        console.log(foods); 
         res.render('viewFoods', { foods });
     } catch (err) {
         console.error(err);
