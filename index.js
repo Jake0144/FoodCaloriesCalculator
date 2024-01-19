@@ -48,29 +48,34 @@ app.get('/',isLoggedIn, (req, res) => {
 app.get('/create-new-food',isLoggedIn, (req, res) => {
     res.render('addFood');
   });
-  app.get('/view-all-foods',isLoggedIn, async (req, res) => {
+  app.get('/view-all-foods', isLoggedIn, async (req, res) => {
     try {
-        const foods = await Food.find();
-        console.log(foods); 
-        res.render('viewFoods', { foods });
+      const foods = await Food.find({ user: req.user._id });
+      console.log(foods);
+      res.render('viewFoods', { foods });
     } catch (err) {
-        console.error(err);
-        res.send(err);
+      console.error(err);
+      res.send(err);
     }
-});
+  });
 app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
 //Post requests
-app.post('/api/add-food', async (req, res) => {
+app.post('/api/add-food', isLoggedIn, async (req, res) => {
   try {
-      const food = new Food(req.body);
-      const result = await food.save();
-      console.log(result);
-      res.redirect('/');
+    const food = new Food({
+      title: req.body.title,
+      calories: req.body.calories,
+      mass: req.body.mass,
+      user: req.user._id, 
+    });
+    const result = await food.save();
+    console.log(result);
+    res.redirect('/');
   } catch (err) {
-      console.error(err);
-      res.send(err);
+    console.error(err);
+    res.send(err);
   }
 });
 
@@ -82,7 +87,11 @@ app.get('/login', (req, res) => {
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/login'
-}));
+}), (req, res) => {
+  req.session.save(() => {
+    res.redirect('/');
+  });
+});
 
 app.get('/register', (req, res) => {
   res.render('register'); 
