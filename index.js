@@ -45,10 +45,6 @@ app.post('/api/add-food', (req,res)=>{
       res.redirect('/');
     })
   });
-
-<<<<<<< Updated upstream
-=======
-
 // Routes for authentication
 app.get('/login', (req, res) => {
   res.render('login'); 
@@ -95,7 +91,7 @@ app.get('/logout', (req, res) => {
 });
 
 
->>>>>>> Stashed changes
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
