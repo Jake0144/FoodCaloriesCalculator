@@ -64,8 +64,8 @@
                         <strong>Title:</strong> <%= food.title %>, 
                         <strong>Calories:</strong> <%= food.calories %>, 
                         <strong>Mass:</strong> <%= food.mass %>
+                        <strong class="remove-icon" onclick="removeFood('<%= food._id %>')">&#x2716;</strong>
                     </div>
-                    <div class="remove-icon" onclick="removeFood('<%= food._id %>')">&#x2716;</div>
                 </li>
             <% }); %>
         </ul>
@@ -75,13 +75,22 @@
 
     <a href="/">Go to home page</a>
 <script>
-    function removeFood(foodId) {
-            fetch(`/api/remove-food/${foodId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+    async function removeFood(foodId) {
+            try {
+                await fetch(`/api/remove-food/${foodId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                // Refresh the page after deletion
+                setTimeout(() => {
+                    location.reload();
+                }, 100); 
+            } catch (error) {
+                console.error('Error deleting food:', error);
+            }
         }
 </script>
 </body>

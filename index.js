@@ -40,7 +40,14 @@ function isLoggedIn(req, res, next) {
   res.redirect('/login'); // Redirect to login page if not authenticated
 }
 
-
+//Remove Food Request Handler
+app.delete('/api/remove-food/:foodId', (req,res)=>{
+  Food.findByIdAndDelete(req.params.foodId)
+  .then((result)=>{
+    console.log(result);
+    res.redirect('/')
+    })
+});
 //Get requests
 app.get('/',isLoggedIn, (req, res) => {
     res.render('index');
@@ -74,21 +81,11 @@ app.post('/api/add-food', isLoggedIn, async (req, res) => {
 
     const result = await food.save();
     console.log(result);
-
-    res.json({ success: true, message: 'Food added successfully' });
+    res.redirect('/')
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
-});
-
-//Remove Food Request Handler
-app.delete('/api/remove-food/:foodId', (req,res)=>{
-  Food.findByIdAndDelete(req.params.foodId)
-  .then((result)=>{
-    console.log(result);
-    
-    })
 });
 
 // Routes for authentication
