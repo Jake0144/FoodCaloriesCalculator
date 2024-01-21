@@ -4,6 +4,7 @@ const ejs = require('ejs');
 const path = require('path');
 const Food = require('./models/food');
 const User = require('./models/user');
+const Calories = require('./models/calories');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -68,7 +69,99 @@ app.get('/view-all-foods', isLoggedIn, async (req, res) => {
 app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
-//Post request to add new food
+app.get('/eat-food', async (req,res)=>{
+  try {
+    const foods = await Food.find({ user: req.user._id });
+    console.log(foods);
+    res.render('eatFood', { foods });
+  } catch (err) {
+    console.error(err);
+    res.send(err);
+  }
+});
+app.get('/api/get-all-foods', isLoggedIn, async (req, res) => {
+  try {
+      const foods = await Food.find({ user: req.user._id }, 'title');
+      res.json(foods);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+//Post request for eat food
+app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
+  try {
+    const foodId = req.params.foodId;
+    const food = await Food.findById(foodId);
+
+    if (!food) {
+      return res.status(404).json({ success: false, message: 'Food not found.' });
+    }
+
+    // Calculate the total calories
+    const totalCalories = food.calories;
+
+    // Get the current date without the time
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Check if there's an existing record for the current date and user ID
+    const existingRecord = await Calories.findOne({
+      date: currentDate,
+      user: req.user._id,
+    });
+
+    if (existingRecord) {
+      // If a record exists, update it with the new total calories
+      existingRecord.totalCalories += totalCalories;
+      await existingRecord.save();
+    } else {
+      // If no record exists, create a new calorie record
+      const calorieRecord = {
+        totalCalories,
+        date: currentDate,
+        user: req.user._id,
+      };
+
+      // Save the new calorie record to the "calories" collection
+      await Calories.create(calorieRecord);
+    }
+
+    // Chain the redirect to ensure it happens after the asynchronous operations
+    res.status(200).json({ success: true, message: 'Food eaten successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error eating food.' });
+  }
+});
+//Total Calories api for the main page 
+app.get('/api/total-calories', isLoggedIn, async (req, res) => {
+  try {
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0); 
+      const totalCalories = await Calories.aggregate([
+          {
+              $match: {
+                  user: req.user._id,
+                  date: { $gte: currentDate },
+              },
+          },
+          {
+              $group: {
+                  _id: null,
+                  totalCalories: { $sum: '$totalCalories' },
+              },
+          },
+      ]);
+
+      res.json({ totalCalories: totalCalories.length > 0 ? totalCalories[0].totalCalories : 0 });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Error fetching total calories.' });
+  }
+});
+
 // Post request to add new food
 app.post('/api/add-food', isLoggedIn, async (req, res) => {
   try {
@@ -87,7 +180,6 @@ app.post('/api/add-food', isLoggedIn, async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
-
 // Routes for authentication
 app.get('/login', (req, res) => {
   res.render('login'); 
