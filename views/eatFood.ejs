@@ -34,11 +34,16 @@
         }
 
         a {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #333;
+        background-color: #4caf50;
+        color: white;
+        margin-left: 47%;
+        text-decoration: none;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 16px;
         }
 
         .remove-icon {
@@ -49,6 +54,39 @@
 
     .remove-icon:hover {
         color: #e74c3c;
+    }
+    label{
+        font-weight: bold;
+    }
+    button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 16px;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+    .title{
+        text-align: center;
+        margin-left: 50%;
+        text-transform: capitalize;
+        font-size: 20px;
+    }
+    .item{
+        margin-left: 40%;
+    }
+    input {
+        padding: 8px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
     }
     </style>
 </head>
@@ -61,39 +99,44 @@
             <% foods.forEach((food) => { %>
                 <li>
                     <div>
-                        <strong>Title:</strong> <%= food.title %>, 
-                        <strong>Calories:</strong> <%= food.calories %>, 
-                        <strong>Mass:</strong> <%= food.mass %>
+                        <strong class="title"><%= food.title %></strong>
+                        <p class="item">
+                        <label for="quantity_<%= food._id %>">Quantity(g):</label>
+                        <input type="number" id="quantity_<%= food._id %>" name="quantity" min="1" value="1">
                         <button onclick="eatFood('<%= food._id %>')">Eat</button>
+                        </p>
                     </div>
                 </li>
             <% }); %>
-        </ul>
+        </ul>        
     <% } else { %>
         <p>No foods added yet.</p>
     <% } %>
 
     <a href="/">Go to home page</a>
 <script>
-    async function eatFood(foodId) {
-    try {
-        const response = await fetch(`/api/eat-food/${foodId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+   async function eatFood(foodId) {
+        const quantity = document.getElementById(`quantity_${foodId}`).value;
 
-        if (response.ok) {
-            console.log('Food eaten successfully.');
-            window.location.href = '/';
-        } else {
-            console.error('Error eating food.');
+        try {
+            const response = await fetch(`/api/eat-food/${foodId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity }),
+            });
+
+            if (response.ok) {
+                console.log('Food eaten successfully.');
+                window.location.href="/";
+            } else {
+                console.error('Error eating food.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
-    } catch (error) {
-        console.error('Error:', error);
     }
-}
 
 </script>
 </body>

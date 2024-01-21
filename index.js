@@ -90,49 +90,43 @@ app.get('/api/get-all-foods', isLoggedIn, async (req, res) => {
 });
 
 //Post request for eat food
+// index.js or your server file
+
+// ...
+
 app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
   try {
-    const foodId = req.params.foodId;
-    const food = await Food.findById(foodId);
+      const foodId = req.params.foodId;
+      const food = await Food.findById(foodId);
 
-    if (!food) {
-      return res.status(404).json({ success: false, message: 'Food not found.' });
-    }
+      if (!food) {
+          return res.status(404).json({ success: false, message: 'Food not found.' });
+      }
 
-    // Calculate the total calories
-    const totalCalories = food.calories;
+      // Get the quantity from the request body
+      const quantity = req.body.quantity || 1;
 
-    // Get the current date without the time
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
+      // Calculate the total calories based on the mass, quantity, and calories
+      const totalCalories = (food.calories / food.mass) * quantity;
 
-    // Check if there's an existing record for the current date and user ID
-    const existingRecord = await Calories.findOne({
-      date: currentDate,
-      user: req.user._id,
-    });
+      // Create a new calorie record with the date set to the beginning of the day
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
 
-    if (existingRecord) {
-      // If a record exists, update it with the new total calories
-      existingRecord.totalCalories += totalCalories;
-      await existingRecord.save();
-    } else {
-      // If no record exists, create a new calorie record
       const calorieRecord = {
-        totalCalories,
-        date: currentDate,
-        user: req.user._id,
+          totalCalories,
+          date: currentDate,
+          user: req.user._id,
       };
 
-      // Save the new calorie record to the "calories" collection
-      await Calories.create(calorieRecord);
-    }
+      // Save the calorie record to the "calories" collection
+      const result = await Calories.create(calorieRecord);
 
-    // Chain the redirect to ensure it happens after the asynchronous operations
-    res.status(200).json({ success: true, message: 'Food eaten successfully.' });
+      console.log(result);
+      res.redirect('/');
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Error eating food.' });
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Error eating food.' });
   }
 });
 //Total Calories api for the main page 
