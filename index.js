@@ -10,7 +10,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const passportLocalMongoose = require('passport-local-mongoose');
-
+const moment = require('moment-timezone');
 
 const app = express();
 const port = 3000;
@@ -90,10 +90,6 @@ app.get('/api/get-all-foods', isLoggedIn, async (req, res) => {
 });
 
 //Post request for eat food
-// index.js or your server file
-
-// ...
-
 app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
   try {
       const foodId = req.params.foodId;
@@ -109,9 +105,11 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
       // Calculate the total calories based on the mass, quantity, and calories
       const totalCalories = (food.calories / food.mass) * quantity;
 
-      // Create a new calorie record with the date set to the beginning of the day
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
+      // Get the user's timezone 
+      const userTimezone = req.user.timezone || 'UTC';
+
+      // Use moment-timezone to handle timezones
+      const currentDate = moment().tz(userTimezone).startOf('day');
 
       const calorieRecord = {
           totalCalories,
@@ -132,13 +130,17 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
 //Total Calories api for the main page 
 app.get('/api/total-calories', isLoggedIn, async (req, res) => {
   try {
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); 
+      // Get the user's timezone 
+      const userTimezone = req.user.timezone || 'UTC';
+
+      // Use moment-timezone to handle timezones
+      const currentDate = moment().tz(userTimezone).startOf('day');
+
       const totalCalories = await Calories.aggregate([
           {
               $match: {
                   user: req.user._id,
-                  date: { $gte: currentDate },
+                  date: { $gte: currentDate.toDate() }, 
               },
           },
           {
@@ -193,29 +195,29 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const { username, password } = req.body;
-
-  // Validate input
+  const { username, password, timezone } = req.body;
+  
   if (!username || !password) {
     return res.render('register', { error: 'Username and password are required.' });
   }
 
-// Create a new user
-const newUser = new User({ username });
+  // Create a new user with timezone
+  const newUser = new User({ username, timezone });
 
-// Use the setPassword method provided by passport-local-mongoose to set the hashed password
-User.register(newUser, password, (err, user) => {
-  if (err) {
-    console.error(err);
-    return res.render('register', { error: 'Registration failed. Please try again.' });
-  }
+  // Use the setPassword method provided by passport-local-mongoose to set the hashed password
+  User.register(newUser, password, (err, user) => {
+    if (err) {
+      console.error(err);
+      return res.render('register', { error: 'Registration failed. Please try again.' });
+    }
 
-  // Automatically log in the user after registration
-  passport.authenticate('local')(req, res, () => {
-    res.redirect('/');
+    // Automatically log in the user after registration
+    passport.authenticate('local')(req, res, () => {
+      res.redirect('/');
+    });
   });
 });
-});
+
 
 // Logout route
 app.get('/logout', (req, res) => {

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment-timezone');
 
 const caloriesSchema = new mongoose.Schema({
   totalCalories: {
@@ -7,7 +8,11 @@ const caloriesSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now,
+    default: function () {
+      const userTimezone = this.user.timezone || 'UTC';
+      
+      return moment().tz(userTimezone).toDate();
+    },
     required: true,
   },
   user: {
