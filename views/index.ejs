@@ -36,23 +36,22 @@
         }
 
         a {
-    color: white;
-    text-decoration: none;
-    margin-top: 20px;
-    display: inline-block;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    background-color: #4caf50;
-}
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4caf50;
+        }
 
-a:hover {
-    background-color: #45a049;
-    color: #fff;
-}
+        a:hover {
+            background-color: #45a049;
+            color: #fff;
+        }
 
-
-        .appnamer{
+        .appnamer {
             background-color: #6bc36e;
             border-radius: 8px;
             border: 20px;
@@ -62,13 +61,13 @@ a:hover {
             align-items: center;
             margin-top: 0%;
         }
-        #totalCaloriesIndicator{
+
+        #totalCaloriesIndicator {
             padding: 10px;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="appnamer">
             <h1 class="appname">Food Management App</h1>
@@ -85,15 +84,34 @@ a:hover {
         // Function to fetch and update total calories
         async function updateTotalCalories() {
             try {
-                const response = await fetch('/api/total-calories');
-                const data = await response.json();
+                // Get the user's timezone
+                const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-                if (response.ok) {
-                    const totalCaloriesIndicator = document.getElementById('totalCaloriesIndicator');
-                    totalCaloriesIndicator.innerText = `Total Calories Today: ${data.totalCalories}`;
-                } else {
-                    console.error('Error fetching total calories:', data.message);
-                }
+                // Create a new Date object with the adjusted timezone
+                const currentDate = new Date();
+                const adjustedDate = new Date(currentDate.toLocaleDateString('en-US', { timeZone: userTimezone }));
+
+                // Fetch request with custom header for timezone and adjusted date
+const response = await fetch('/api/total-calories', {
+    method: 'GET',
+    headers: {
+        'Timezone': userTimezone,
+        'Date': new Date().toISOString(),
+    },
+});
+
+const data = await response.json();
+
+if (response.ok) {
+    const totalCaloriesIndicator = document.getElementById('totalCaloriesIndicator');
+    
+    // Assuming totalCalories is an array of objects, get the totalCalories property of the first object
+    const totalCalories = data.totalCalories.length > 0 ? data.totalCalories[0].totalCalories : 0;
+
+    totalCaloriesIndicator.innerText = `Total Calories Today: ${totalCalories}`;
+} else {
+    console.error('Error fetching total calories:', data.message);
+}
             } catch (error) {
                 console.error('Error:', error);
             }

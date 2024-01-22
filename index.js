@@ -107,7 +107,6 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
 
       // Create a new calorie record with the date set to the beginning of the day
       const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);
 
       const calorieRecord = {
           totalCalories,
@@ -128,29 +127,36 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
 //Total Calories api for the main page 
 app.get('/api/total-calories', isLoggedIn, async (req, res) => {
   try {
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0); 
-      const totalCalories = await Calories.aggregate([
-          {
-              $match: {
-                  user: req.user._id,
-                  date: { $gte: currentDate },
-              },
-          },
-          {
-              $group: {
-                  _id: null,
-                  totalCalories: { $sum: '$totalCalories' },
-              },
-          },
-      ]);
+    const currentDate = new Date(req.headers['date']) || new Date(); // Use the provided date or current date if not provided
+    const userTimezone = req.headers['timezone'] || 'UTC';
 
-      res.json({ totalCalories: totalCalories.length > 0 ? totalCalories[0].totalCalories : 0 });
+    const totalCalories = await Calories.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          date: { $gte: currentDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: { date: '$date', timezone: 'UTC' } },
+            month: { $month: { date: '$date', timezone: 'UTC' } },
+            day: { $dayOfMonth: { date: '$date', timezone: 'UTC' } }
+          },
+          totalCalories: { $sum: '$totalCalories' },
+        },
+      },
+    ]);
+
+    res.json({ totalCalories });
   } catch (err) {
-      console.error(err);
-      res.status(500).json({ success: false, message: 'Error fetching total calories.' });
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error fetching total calories.' });
   }
 });
+
+
 
 // Post request to add new food
 app.post('/api/add-food', isLoggedIn, async (req, res) => {
