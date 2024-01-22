@@ -15,6 +15,10 @@ const caloriesSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  title: {
+    type: String,
+    required: true,
+  },
 });
 
 const Calories = mongoose.model('Calories', caloriesSchema);

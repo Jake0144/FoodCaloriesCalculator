@@ -10,6 +10,8 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const passportLocalMongoose = require('passport-local-mongoose');
+const { ObjectId } = mongoose.Types;
+const moment = require('moment-timezone');
 
 
 const app = express();
@@ -66,6 +68,24 @@ app.get('/view-all-foods', isLoggedIn, async (req, res) => {
       res.send(err);
     }
   });
+  app.get('/eaten-today', isLoggedIn, async (req, res) => {
+    try {
+      // Get the user's time zone from the request headers
+      const userTimeZone = req.get('user-timezone') || 'UTC';
+  
+      // Get the current date and time in the user's local time zone
+      const today = moment().tz(userTimeZone).startOf('day');
+      const tomorrow = moment(today).add(1, 'days');
+      const calorieEntries = await Calories.find({
+        user: req.user._id,
+        date: { $gte: today.toDate(), $lt: tomorrow.toDate() },
+      });
+      res.render('eatenToday', { calorieEntries });
+    } catch (error) {
+      console.error('Error fetching calorie entries:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
@@ -104,7 +124,7 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
 
       // Calculate the total calories based on the mass, quantity, and calories
       const totalCalories = (food.calories / food.mass) * quantity;
-
+      const title = food.title;
       // Create a new calorie record with the date set to the beginning of the day
       const currentDate = new Date();
 
@@ -112,6 +132,7 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
           totalCalories,
           date: currentDate,
           user: req.user._id,
+          title,
       };
 
       // Save the calorie record to the "calories" collection
