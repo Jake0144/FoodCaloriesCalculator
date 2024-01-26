@@ -6,6 +6,7 @@
     <title>Food Management App</title>
     <style>
         body {
+            position: relative;
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
@@ -106,8 +107,7 @@ const data = await response.json();
 if (response.ok) {
     const totalCaloriesIndicator = document.getElementById('totalCaloriesIndicator');
     
-    // Assuming totalCalories is an array of objects, get the totalCalories property of the first object
-    const totalCalories = data.totalCalories.length > 0 ? data.totalCalories[0].totalCalories : 0;
+    const totalCalories = data.totalCalories && data.totalCalories.calories ? data.totalCalories.calories : 0;
 
     totalCaloriesIndicator.innerText = `Total Calories Today: ${totalCalories}`;
 } else {
