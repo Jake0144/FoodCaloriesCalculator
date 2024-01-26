@@ -5,82 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Management App</title>
     <style>
-        body {
-            position: relative;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center; 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            color: #000000; 
-        }
+body {
+    position: relative;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    color: #333; 
+}
 
-        .container {
-            background-color: rgba(255, 255, 255, 0.8); 
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-top: 0%;
-        }
+.container {
+    background-color: rgba(255, 255, 255, 0.8); 
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0%;
+}
 
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
 
-        a {
-            color: white;
-            text-decoration: none;
-            margin-top: 20px;
-            display: inline-block;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #4caf50;
-        }
+a {
+    color: #fff;
+    text-decoration: none;
+    margin-top: 20px;
+    display: inline-block;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #24a94c; 
+}
 
-        a:hover {
-            background-color: #45a049;
-            color: #fff;
-        }
+a:hover {
+    background-color: #247e42;
+    color: #fff;
+}
 
-        .appnamer {
-            background-color: #6bc36e;
-            border-radius: 8px;
-            border: 20px;
-            width: 600px;
-            height: 60px;
-            margin-left: -30%;
-            align-items: center;
-            margin-top: 0%;
-        }
+.appnamer {
+    background-color: #6bc36e;
+    border-radius: 8px;
+    border: 20px;
+    width: 600px;
+    height: 60px;
+    margin-left: -30%;
+    align-items: center;
+    margin-top: 0%;
+}
 
-        #totalCaloriesIndicator {
-            padding: 10px;
-        }
-        .settings-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #3498db;
-        color: white;
-        padding: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+#totalCaloriesIndicator {
+    padding: 10px;
+}
 
-    .settings-button:hover {
-        background-color: #2980b9;
-    }
+.settings-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c; 
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.settings-button:hover {
+    background-color: #c0392b; 
+}
+
+#progressBarContainer {
+    margin-top: 20px;
+    width: 100%;
+    background-color: #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#progressBar {
+    height: 30px;
+    width: 0;
+    background-color: #2ecc71; 
+    transition: width 0.3s ease;
+}
+
+#uncompletedBar {
+    height: 30px;
+    width: 100%;
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
     </style>
 </head>
 <body>
@@ -88,8 +114,12 @@
         <div class="appnamer">
             <h1 class="appname">Food Management App</h1>
         </div>
-        <div id="totalCaloriesIndicator">
-            Loading total calories...
+        <div id="totalCaloriesContainer">
+            <p id="totalCaloriesIndicator">Loading total calories...</p>
+            <div id="progressBarContainer">
+                <div id="uncompletedBar"></div>
+                <div id="progressBar"></div>
+            </div>
         </div>
         <a href="/create-new-food">Add Food</a>
         <a href="/view-all-foods">View All Foods</a>
@@ -98,39 +128,48 @@
         <p><a href="/logout">Log Out</a></p>
         <a href="/settings" class="settings-button">Settings</a>
     </div>
-    </div>
     <script>
-// Function to fetch and update total calories
+        // Function to fetch and update total calories
 async function updateTotalCalories() {
     try {
         const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-// Get the current date in the user's timezone
-const currentDate = new Date().toISOString();
 
-// Fetch request with custom headers for timezone and date
-const response = await fetch('/api/total-calories', {
-    method: 'GET',
-    headers: {
-        'timezone': userTimezone,
-        'date': currentDate,
-    },
+        const currentDate = new Date().toISOString();
+
+
+        const response = await fetch('/api/total-calories', {
+            method: 'GET',
+            headers: {
+                'timezone': userTimezone,
+                'date': currentDate,
+            },
         });
 
         const data = await response.json();
-if (response.ok) {
-    const totalCalories = data.totalCalories.length > 0 ? data.totalCalories[0].totalCalories : 0;
-    const totalCaloriesIndicator = document.getElementById('totalCaloriesIndicator');
-    totalCaloriesIndicator.innerText = `Total Calories Today: ${totalCalories}`;
-} else {
-    console.error('Error fetching total calories:', data.message);
-}
+        if (response.ok) {
+            const totalCalories = data.totalCalories.length > 0 ? data.totalCalories[0].totalCalories : 0;
+            const maxCalories = data.maxCalories || 1; 
+            const progress = (totalCalories / maxCalories) * 100;
+
+            const progressBar = document.getElementById('progressBar');
+            const uncompletedBar = document.getElementById('uncompletedBar');
+
+            progressBar.style.width = `${progress}%`;
+            uncompletedBar.style.width = `${100 - progress}%`;
+
+            const totalCaloriesIndicator = document.getElementById('totalCaloriesIndicator');
+            totalCaloriesIndicator.innerText = `Total Calories Today: ${totalCalories} / ${maxCalories}`;
+        } else {
+            console.error('Error fetching total calories:', data.message);
+        }
     } catch (error) {
         console.error('Error:', error);
     }
 }
+
 // Call the function on page load
 window.onload = updateTotalCalories;
-</script>
+    </script>
 </body>
 </html>

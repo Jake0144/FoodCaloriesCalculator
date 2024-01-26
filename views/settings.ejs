@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Management App - Settings</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        #settingsForm {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Settings</h1>
+
+    <form id="settingsForm">
+        <label for="caloriesLimit">Daily Calories Limit:</label>
+        <input type="number" id="caloriesLimit" name="caloriesLimit" min="0" required>
+
+        <button type="submit">Save Settings</button>
+    </form>
+
+    <a href="/">Go to home page</a>
+
+    <script>
+        document.getElementById('settingsForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const caloriesLimit = document.getElementById('caloriesLimit').value;
+            fetch('/api/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ caloriesLimit }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update settings');
+                }
+                console.log('Settings updated successfully');
+                window.location.href='/';
+            })
+            .catch(error => {
+                console.error('Error updating settings:', error.message);
+            });
+        });
+    </script>
+</body>
+</html>

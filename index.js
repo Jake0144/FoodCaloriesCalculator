@@ -89,6 +89,20 @@ app.get('/view-all-foods', isLoggedIn, async (req, res) => {
 app.get('/view-all-food', (req, res) => {
     res.redirect('/view-all-foods');
   });
+  app.get('/settings', (req, res) => {
+    res.render('settings');
+  });
+//save settings 
+  app.post('/api/settings', isLoggedIn, async (req, res) => {
+    try {
+      const { caloriesLimit } = req.body;
+      await User.findByIdAndUpdate(req.user._id, { maxCalories: caloriesLimit });
+      res.status(200).send('Settings updated successfully');
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+  }
+});
 app.get('/eat-food', async (req,res)=>{
   try {
     const foods = await Food.find({ user: req.user._id });
@@ -182,7 +196,8 @@ const userTimezone = req.headers['timezone'] || 'UTC';
         },
       },
     ]);
-    res.json({ totalCalories });
+    const maxCalories = req.user.maxCalories || 1; 
+    res.json({ totalCalories, maxCalories });
     console.log('Total Calories:', totalCalories);
   } catch (err) {
     console.error(err);

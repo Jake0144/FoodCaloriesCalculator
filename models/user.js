@@ -3,7 +3,8 @@ const passportLocalMongoose = require('passport-local-mongoose');
 
 const userSchema = new mongoose.Schema({
   username: String,
-  password: String
+  password: String,
+  maxCalories: Number
 });
 
 // Apply the passport-local-mongoose plugin
