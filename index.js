@@ -148,36 +148,47 @@ app.post('/api/eat-food/:foodId', isLoggedIn, async (req, res) => {
 //Total Calories api for the main page 
 app.get('/api/total-calories', isLoggedIn, async (req, res) => {
   try {
-    const currentDate = new Date(req.headers['date']) || new Date(); // Use the provided date or current date if not provided
-    const userTimezone = req.headers['timezone'] || 'UTC';
+    const dateString = req.headers['date'];
+    let currentDate;
+if (dateString) {
+  currentDate = new Date(dateString);
+  if (isNaN(currentDate.getTime())) {
+    console.error('Invalid date format:', dateString);
+    currentDate = new Date(); //current date as a fallback
+  }
+} else {
+  currentDate = new Date();
+}
 
+const userTimezone = req.headers['timezone'] || 'UTC';
     const totalCalories = await Calories.aggregate([
       {
         $match: {
           user: req.user._id,
-          date: { $gte: currentDate },
-        },
+          date: {
+            $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+            $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+          }
+        }        
       },
       {
         $group: {
           _id: {
-            year: { $year: { date: '$date', timezone: 'UTC' } },
-            month: { $month: { date: '$date', timezone: 'UTC' } },
-            day: { $dayOfMonth: { date: '$date', timezone: 'UTC' } }
+            year: { $year: { date: '$date', timezone: userTimezone } },
+            month: { $month: { date: '$date', timezone: userTimezone } },
+            day: { $dayOfMonth: { date: '$date', timezone: userTimezone } },
           },
           totalCalories: { $sum: '$totalCalories' },
         },
       },
     ]);
-
     res.json({ totalCalories });
+    console.log('Total Calories:', totalCalories);
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Error fetching total calories.' });
   }
 });
-
-
 
 // Post request to add new food
 app.post('/api/add-food', isLoggedIn, async (req, res) => {

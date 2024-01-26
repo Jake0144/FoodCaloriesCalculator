@@ -66,6 +66,21 @@
         #totalCaloriesIndicator {
             padding: 10px;
         }
+        .settings-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #3498db;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .settings-button:hover {
+        background-color: #2980b9;
+    }
     </style>
 </head>
 <body>
@@ -81,45 +96,41 @@
         <a href="/eat-food">Eat Food</a>
         <a href="/eaten-today">What I Ate today</a>
         <p><a href="/logout">Log Out</a></p>
+        <a href="/settings" class="settings-button">Settings</a>
+    </div>
     </div>
     <script>
-        // Function to fetch and update total calories
-        async function updateTotalCalories() {
-            try {
-                // Get the user's timezone
-                const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+// Function to fetch and update total calories
+async function updateTotalCalories() {
+    try {
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-                // Create a new Date object with the adjusted timezone
-                const currentDate = new Date();
-                const adjustedDate = new Date(currentDate.toLocaleDateString('en-US', { timeZone: userTimezone }));
+// Get the current date in the user's timezone
+const currentDate = new Date().toISOString();
 
-                // Fetch request with custom header for timezone and adjusted date
+// Fetch request with custom headers for timezone and date
 const response = await fetch('/api/total-calories', {
     method: 'GET',
     headers: {
-        'Timezone': userTimezone,
-        'Date': new Date().toISOString(),
+        'timezone': userTimezone,
+        'date': currentDate,
     },
-});
+        });
 
-const data = await response.json();
-
+        const data = await response.json();
 if (response.ok) {
+    const totalCalories = data.totalCalories.length > 0 ? data.totalCalories[0].totalCalories : 0;
     const totalCaloriesIndicator = document.getElementById('totalCaloriesIndicator');
-    
-    const totalCalories = data.totalCalories && data.totalCalories.calories ? data.totalCalories.calories : 0;
-
     totalCaloriesIndicator.innerText = `Total Calories Today: ${totalCalories}`;
 } else {
     console.error('Error fetching total calories:', data.message);
 }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Call the function on page load
-        window.onload = updateTotalCalories;
-    </script>
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+// Call the function on page load
+window.onload = updateTotalCalories;
+</script>
 </body>
 </html>
